@@ -115,7 +115,8 @@ const App = () => {
   const [, setSelectedRecordId] = React.useState(null);
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
-  const [ownerList, setOwnerList] = React.useState([]);
+  const [ownerList, setOwnerList] = React.useState([]); // All users (for filtering)
+  const [activeOwnerList, setActiveOwnerList] = React.useState([]); // Active users only (for create/edit)
   const [, setSelectedOwner] = React.useState(null);
   const [filterOwner, setFilterOwner] = React.useState([]); // Multi-select owner filter
   const [typeList, setTypeList] = React.useState([]);
@@ -283,9 +284,13 @@ const App = () => {
       });
 
       const validUsers = usersResponse?.users?.filter(
-        (user) => user?.full_name && user?.id && (user?.status || "").toLowerCase() === "active"
+        (user) => user?.full_name && user?.id
+      ) || [];
+      setOwnerList(validUsers);
+      const activeUsers = validUsers.filter(
+        (user) => (user?.status || "").toLowerCase() === "active"
       );
-      setOwnerList(validUsers || []);
+      setActiveOwnerList(activeUsers);
 
       const currentUserResponse = await ZOHO.CRM.CONFIG.getCurrentUser();
       const currentUser = currentUserResponse?.users?.[0] || null;
@@ -1153,7 +1158,7 @@ const App = () => {
         openDialog={openEditDialog}
         handleCloseDialog={handleCloseEditDialog}
         title="Edit History"
-        ownerList={ownerList}
+        ownerList={activeOwnerList}
         loggedInUser={loggedInUser}
         ZOHO={ZOHO}
         selectedRowData={selectedRowData}
@@ -1171,7 +1176,7 @@ const App = () => {
         openDialog={openCreateDialog}
         handleCloseDialog={handleCloseCreateDialog}
         title="Create"
-        ownerList={ownerList}
+        ownerList={activeOwnerList}
         loggedInUser={loggedInUser}
         ZOHO={ZOHO}
         onRecordAdded={handleRecordAdded} // Pass the callback

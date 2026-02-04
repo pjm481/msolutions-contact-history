@@ -283,7 +283,7 @@ const App = () => {
       });
 
       const validUsers = usersResponse?.users?.filter(
-        (user) => user?.full_name && user?.id
+        (user) => user?.full_name && user?.id && (user?.status || "").toLowerCase() === "active"
       );
       setOwnerList(validUsers || []);
 
